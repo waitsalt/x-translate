@@ -1,0 +1,7 @@
+server:
+  name: "axum-server-template"
+  port: 8000
+  address: "127.0.0.1"
+
+logger:
+  level: "debug"
