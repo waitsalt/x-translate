@@ -17,9 +17,21 @@ pub struct Logger {
 }
 
 #[derive(Debug, Deserialize)]
+pub struct Router {
+    pub base_path: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Database {
+    pub url: String,
+}
+
+#[derive(Debug, Deserialize)]
 pub struct Config {
     pub server: Server,
     pub logger: Logger,
+    pub router: Router,
+    pub database: Database,
 }
 
 impl Config {

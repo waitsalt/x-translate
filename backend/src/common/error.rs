@@ -26,12 +26,6 @@ impl From<config::ConfigError> for AppError {
     }
 }
 
-impl From<sqlx::Error> for AppError {
-    fn from(_: sqlx::Error) -> Self {
-        AppError::SqlActionError
-    }
-}
-
 impl IntoResponse for AppError {
     fn into_response(self) -> axum::response::Response {
         let (status_code, code, message) = match self {

@@ -1,7 +1,13 @@
 server:
-  name: "axum-server-template"
+  name: "backend"
   port: 8000
   address: "127.0.0.1"
 
 logger:
   level: "debug"
+
+router:
+  base_path: "/api/v0"
+
+database:
+  url: "sqlite://database/database.db"

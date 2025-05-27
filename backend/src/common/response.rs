@@ -16,6 +16,13 @@ impl<T> AppResponse<T> {
             data,
         }
     }
+    pub fn success_with_message(message: String, data: Option<T>) -> Self {
+        Self {
+            code: 200,
+            message,
+            data,
+        }
+    }
 }
 
 impl<T: Serialize> IntoResponse for AppResponse<T> {
