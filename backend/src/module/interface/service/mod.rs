@@ -2,7 +2,6 @@ mod create;
 mod delete;
 mod info;
 mod list;
-mod search;
 mod test;
 mod update;
 

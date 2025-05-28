@@ -1,6 +1,7 @@
 mod dto;
 mod handler;
 mod model;
-mod repository;
-pub mod router;
 mod service;
+
+pub mod repository;
+pub mod router;

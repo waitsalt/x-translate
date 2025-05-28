@@ -1,17 +1,15 @@
-use crate::module::task::model::{Task, TaskStatus};
+use crate::module::{
+    model::ServerResult,
+    task::{dto::TaskCreatePayload, model::Task, repository},
+};
 
-impl Task {
-    pub async fn create(
-        task_id: u32,
-        source_text: String,
-        target_text: String,
-        task_status: TaskStatus,
-    ) -> Self {
-        Self {
-            task_id,
-            source_text,
-            target_text,
-            task_status,
-        }
-    }
+pub async fn create(
+    project_id: u32,
+    task_create_payload_list: &[TaskCreatePayload],
+) -> ServerResult<Vec<Task>> {
+    let _ = repository::insert_some(project_id, task_create_payload_list).await?;
+    let task_list = repository::select_some_by_project_id(project_id)
+        .await
+        .unwrap();
+    Ok(task_list)
 }

@@ -33,9 +33,10 @@ pub async fn info(Path(interface_id): Path<u32>) -> AppResult<Interface> {
 }
 
 pub async fn update_base_info(
+    Path(interface_id): Path<u32>,
     Json(interface_update_payload): Json<InterfaceUpdatePayload>,
 ) -> AppResult<()> {
-    let _ = service::update_base_info(&interface_update_payload).await?;
+    let _ = service::update_base_info(interface_id, &interface_update_payload).await?;
     Ok(AppResponse::success(None))
 }
 

@@ -1,7 +1,10 @@
 use once_cell::sync::Lazy;
 use sqlx::{Pool, Sqlite};
 
-use crate::{common::database::database_connect, module::model::ServerResult};
+use crate::{
+    common::{database::database_connect, error::AppError},
+    module::model::ServerResult,
+};
 
 use super::{
     dto::{InterfaceCreatePayload, InterfaceListParam, InterfaceUpdatePayload},
@@ -56,15 +59,6 @@ pub async fn select_one_by_name(interface_name: &str) -> ServerResult<Interface>
     Ok(result)
 }
 
-pub async fn select_all() -> ServerResult<Vec<Interface>> {
-    let sql = "
-        select *
-        from \"interface\";
-    ";
-    let result: Vec<Interface> = sqlx::query_as(sql).fetch_all(*EXECUTER).await.unwrap();
-    Ok(result)
-}
-
 pub async fn update_one_enable_by_id(interface_id: u32, enable: bool) -> ServerResult<()> {
     let sql = "
         update \"interface\"
@@ -81,6 +75,7 @@ pub async fn update_one_enable_by_id(interface_id: u32, enable: bool) -> ServerR
 }
 
 pub async fn update_one_base_info_by_id(
+    interface_id: u32,
     interface_update_payload: &InterfaceUpdatePayload,
 ) -> ServerResult<()> {
     let mut sql = "
@@ -90,8 +85,18 @@ pub async fn update_one_base_info_by_id(
     "
     .to_string();
 
-    if let Some(_interface_name) = &interface_update_payload.interface_name {
-        sql.push_str(",interface_name = $2");
+    if let Some(interface_name) = &interface_update_payload.interface_name {
+        // 判断接口名是否存在
+        match select_one_by_name(interface_name).await {
+            // 存在则报错
+            Ok(_) => {
+                return Err(AppError::Other);
+            }
+            // 不存在则修改
+            Err(_) => {
+                sql.push_str(",interface_name = $2");
+            }
+        }
     };
     if let Some(_interface_desc) = &interface_update_payload.interface_desc {
         sql.push_str(",interface_desc = $3");
@@ -109,7 +114,7 @@ pub async fn update_one_base_info_by_id(
         sql.push_str(",base_url = $7");
     }
     let _ = sqlx::query(&sql)
-        .bind(interface_update_payload.interface_id)
+        .bind(interface_id)
         .bind(&interface_update_payload.interface_name)
         .bind(&interface_update_payload.interface_desc)
         .bind(&interface_update_payload.provider)

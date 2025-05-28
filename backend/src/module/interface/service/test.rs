@@ -10,7 +10,7 @@ use super::update;
 pub async fn test(interface: &Interface) -> ServerResult<String> {
     let client = openai::Client::from_url(&interface.api_key, &interface.base_url);
     let agent = client.agent(&interface.model_name).build();
-    let response = agent.prompt("").await;
+    let response = agent.prompt("你好").await;
     match response {
         Ok(text) => {
             // 原来接口不可以使用就更改

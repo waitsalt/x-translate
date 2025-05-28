@@ -16,7 +16,6 @@ pub struct InterfaceCreatePayload {
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct InterfaceUpdatePayload {
-    pub interface_id: u32,              // 接口 id
     pub interface_name: Option<String>, // 接口名字
     pub interface_desc: Option<String>, // 接口藐视
     pub provider: Option<Provider>,     // llm 提供商
