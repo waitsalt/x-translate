@@ -1,30 +1,11 @@
-use rig::{completion::Prompt, providers::openai};
+use rig::message::Message;
 
-use crate::{
-    common::error::AppError,
-    module::{interface::model::Interface, model::ServerResult},
-};
+use crate::module::{interface::model::Interface, model::ServerResult};
 
-use super::update;
+use super::chat;
 
 pub async fn test(interface: &Interface) -> ServerResult<String> {
-    let client = openai::Client::from_url(&interface.api_key, &interface.base_url);
-    let agent = client.agent(&interface.model_name).build();
-    let response = agent.prompt("你好").await;
-    match response {
-        Ok(text) => {
-            // 原来接口不可以使用就更改
-            if interface.enable == false {
-                update::update_enable(interface.interface_id, true).await?;
-            }
-            return Ok(text);
-        }
-        Err(_) => {
-            // 原来接不可以使用就更改
-            if interface.enable == true {
-                update::update_enable(interface.interface_id, false).await?;
-            }
-            return Err(AppError::LlmError);
-        }
-    }
+    let history: Vec<Message> = vec![Message::user("text"), Message::assistant("text")];
+    let response = chat::chat(&interface, "你好", history).await?;
+    Ok(response)
 }

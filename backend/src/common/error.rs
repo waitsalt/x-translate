@@ -38,7 +38,7 @@ impl IntoResponse for AppError {
 
             // 其他问题
             AppError::Other => (StatusCode::FORBIDDEN, 9000, "未知错误"),
-            _ => (StatusCode::FORBIDDEN, 9000, "未知错误"),
+            // _ => (StatusCode::FORBIDDEN, 9000, "未知错误"),
         };
         let body = Json(json!({
             "code": code,

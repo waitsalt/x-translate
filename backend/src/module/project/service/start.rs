@@ -1,4 +1,7 @@
-use std::path::Path;
+use std::{path::Path, sync::Arc};
+
+use rig::providers::openai;
+use tokio::sync::Mutex;
 
 use crate::{
     common::error::AppError,
@@ -53,12 +56,39 @@ pub async fn start(project_id: u32) -> ServerResult<()> {
         return Err(AppError::Other);
     }
 
+    // 开始项目
     tokio::spawn(async move {
-        // 有文件且没有任务就生成
+        // 有文件且没有任务 生成任务
         if task_list_empty_is && input_dir_has_file_is {
             todo!()
         }
+
+        // 设置基本参数
+        let project_arc = Arc::new(project);
+        let task_index = Arc::new(Mutex::new(0 as u32));
+        let task_list = Arc::new(Mutex::new(task_list));
+
+        let interface = module::interface::repository::select_one_by_id(project_arc.interface_id)
+            .await
+            .unwrap();
+        let interface_arc = Arc::new(interface);
+
         // 启动对应数量的worker解决任务
+        for index in 0..project_arc.worker_max_number {
+            let worker = module::worker::service::create(
+                index,
+                project_id,
+                task_index.clone(),
+                task_list.clone(),
+            );
+            let project_arc = project_arc.clone();
+            let interface_arc = interface_arc.clone();
+            tokio::spawn(async move {
+                module::worker::service::start(&project_arc, &interface_arc, &worker)
+                    .await
+                    .unwrap();
+            });
+        }
     });
 
     Ok(())
